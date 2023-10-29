@@ -4,7 +4,6 @@
 Setup is super easy. - 
 
 ```shell script
-cd node-mongoose-setup
 npm install
 ```
 
@@ -64,8 +63,6 @@ For Register, Login, Logout use these urls —
 
 1. **Multi Environment config setup**
 
-1. **Autobind Methods**
-
 1. **Built in Pagination**
 
 ## Directory Structure of the Project
@@ -101,14 +98,3 @@ For Register, Login, Logout use these urls —
      ├─ PatientsService.js
      └─ UserService.js
 ```
-## Lets talk about the structure
-
-We have 2 base classes — One for Controller and another for Service.
-
-1. **[Controller.js](system/controllers/Controller.js)** 
-
-This base controller have the basic CRUD operations. To create a new controller just extend this base Controller class.
-
-2. **[Service.js](system/services/Service.js)**
- 
-This is the base Service class which includes the database operations. If you want to change the default behaviour of the services you can update this file.
