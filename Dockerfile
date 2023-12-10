@@ -4,4 +4,4 @@ WORKDIR /usr/scr/app
 COPY . .
 RUN npm i
 EXPOSE 5000
-ENTRYPOINT [ "node", "index.js"]
+CMD [ "node", "index.js"]
