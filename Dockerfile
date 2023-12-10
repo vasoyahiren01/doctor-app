@@ -3,5 +3,5 @@ RUN mkdir -p /usr/scr/app
 WORKDIR /usr/scr/app
 COPY . .
 RUN npm i
-EXPOSE 3000
+EXPOSE 5000
 ENTRYPOINT [ "node", "index.js"]
