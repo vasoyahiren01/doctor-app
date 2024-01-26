@@ -13,17 +13,19 @@ class Patients {
                 'required': false,
             },
             'gender': {
-                'type': String,
-                'required': false,
+                'type': String
             },
             'age': {
-                'type': Number,
-                'required': true,
+                'type': Number
             },
             'image': {
                 'type': mongoose.Types.ObjectId,
                 default: null
-            }
+            },
+            'isDeleted': {
+                'type': Boolean,
+                default: false
+            },
         }, { 'timestamps': true });
         try {
             mongoose.model('patients', schema);

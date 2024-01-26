@@ -1,10 +1,10 @@
 const { PatientsService } = require('./../services/PatientsService');
 const { Patients } = require('./../models/Patients');
 const { HttpResponse } = require('../../system/helpers/HttpResponse');
-// const autoBind = require( 'auto-bind' ),
-const patientsService = new PatientsService(
-    new Patients().getInstance()
-);
+const { AppointmentService } = require('../services/AppointmentService');
+const { Appointment } = require('../models/Appointment');
+const appointmentService = new AppointmentService(new Appointment().getInstance());
+const patientsService = new PatientsService(new Patients().getInstance());
 
 class PatientsController {
 
@@ -21,8 +21,8 @@ class PatientsController {
         const { id } = req.params;
 
         try {
-            const response = await patientsService.get(id);
-
+            let response = await patientsService.get(id);
+            response['appointments'] = await appointmentService.model.find({ patient: id }).sort({ 'createdAt': -1 });
             return res.status(response.statusCode).json(response);
         } catch (e) {
             next(e);
@@ -35,9 +35,9 @@ class PatientsController {
 
         limit = limit ? Number(limit) : 10;
         try {
-            let query = {}
+            let query = { isDeleted: { $ne: true } }
             if (search) {
-                query['$or'] = [{ name: { $regex: search, $options: 'i' }},{ mobileNo: { $regex: search, $options: 'i' }}]
+                query['$or'] = [{ name: { $regex: search, $options: 'i' } }, { mobileNo: { $regex: search, $options: 'i' } }]
             }
             const items = await patientsService.model.find(query).sort({ 'createdAt': -1 }).skip(skip).limit(limit);
             const total = await patientsService.model.countDocuments(query);
