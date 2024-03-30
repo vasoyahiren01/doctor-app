@@ -7,7 +7,11 @@ const { PatientsService } = require('./../services/PatientsService');
 const { Patients } = require('./../models/Patients');
 const patientsService = new PatientsService(new Patients().getInstance());
 const moment = require('moment')
-
+const { Files } = require( './../models/Files' );
+const { FilesService } = require( './../services/FilesService' );
+const filesService = new FilesService(
+    new Files().getInstance()
+);
 class AppointmentController {
     async add(req, res, next) {
         try {
@@ -57,6 +61,27 @@ class AppointmentController {
                 },
                 { $unwind: { path: '$patientInfo', preserveNullAndEmptyArrays: true } },
             ])
+
+            if (items.length) {
+                let imageIds = [];
+                items.map(e => {
+                    if (e?.attachments?.length) {
+                        imageIds = [...imageIds, ...e?.attachments]
+                    }
+                })
+
+                let appointments = await filesService.model.find({ _id: { $in: imageIds } });
+
+                for (let i = 0; i < items.length; i++) {
+                    let attechFile = items[i]?.attachments || [];
+                    attechFile = JSON.parse(JSON.stringify(attechFile));
+                    if (attechFile?.length) {
+                        items[i].attachments = appointments.filter(e => attechFile.includes(e._id?.toString()))
+                    }
+                }
+            }
+
+
 
             return res.status(200).json(items?.length ? items[0] : {});
         } catch (e) {
