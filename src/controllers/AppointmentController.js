@@ -90,7 +90,7 @@ class AppointmentController {
     }
 
     async getAll(req, res, next) {
-        let { currentPage, limit, search, status } = req.body;
+        let { currentPage, limit, search, status, patient } = req.body;
         let skip = currentPage == 1 ? 0 : (currentPage - 1) * limit;
 
         limit = limit ? Number(limit) : 10;
@@ -101,6 +101,8 @@ class AppointmentController {
                 query['$or'] = [{ problem: { $regex: search, $options: 'i' } }, { prescription: { $regex: search, $options: 'i' } }, { patient: { $in: patientsIds } }]
             }
             if (status) query['status'] = status;
+
+            if(patient) query['patient'] = new mongoose.Types.ObjectId(patient) ;
 
             let items = await appointmentService.model.aggregate([
                 { $match: query },
@@ -120,6 +122,25 @@ class AppointmentController {
                 },
                 { $unwind: { path: '$patientInfo', preserveNullAndEmptyArrays: true } },
             ])
+
+            if (items.length) {
+                let imageIds = [];
+                items.map(e => {
+                    if (e?.attachments?.length) {
+                        imageIds = [...imageIds, ...e?.attachments]
+                    }
+                })
+
+                let appointments = await filesService.model.find({ _id: { $in: imageIds } });
+
+                for (let i = 0; i < items.length; i++) {
+                    let attechFile = items[i]?.attachments || [];
+                    attechFile = JSON.parse(JSON.stringify(attechFile));
+                    if (attechFile?.length) {
+                        items[i].attachments = appointments.filter(e => attechFile.includes(e._id?.toString()))
+                    }
+                }
+            }
 
             const total = await appointmentService.model.countDocuments(query);
             const response = new HttpResponse(items, { 'totalCount': total });
