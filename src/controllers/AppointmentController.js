@@ -54,7 +54,7 @@ class AppointmentController {
                         let: { patient: "$patient" },
                         pipeline: [
                             { $match: { $expr: { $and: [{ $eq: ['$_id', "$$patient"] }] } } },
-                            { $project: { name: 1, mobileNo: 1, gender: 1, age: 1 } }
+                            { $project: { name: 1, mobileNo: 1, gender: 1, age: 1, procudure: 1 } }
                         ],
                         as: 'patientInfo'
                     }
@@ -115,7 +115,7 @@ class AppointmentController {
                         let: { patient: "$patient" },
                         pipeline: [
                             { $match: { $expr: { $and: [{ $eq: ['$_id', "$$patient"] }] } } },
-                            { $project: { name: 1, mobileNo: 1, gender: 1, age: 1 } }
+                            { $project: { name: 1, mobileNo: 1, gender: 1, age: 1, procudure:1 } }
                         ],
                         as: 'patientInfo'
                     }
@@ -191,7 +191,7 @@ class AppointmentController {
                         let: { patient: "$patient" },
                         pipeline: [
                             { $match: { $expr: { $and: [{ $eq: ['$_id', "$$patient"] }] } } },
-                            { $project: { name: 1, mobileNo: 1, gender: 1, age: 1 } }
+                            { $project: { name: 1, mobileNo: 1, gender: 1, age: 1, procudure:1 } }
                         ],
                         as: 'patientInfo'
                     }
