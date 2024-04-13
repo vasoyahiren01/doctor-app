@@ -3,6 +3,7 @@ const { Patients } = require('./../models/Patients');
 const { HttpResponse } = require('../../system/helpers/HttpResponse');
 const { AppointmentService } = require('../services/AppointmentService');
 const { Appointment } = require('../models/Appointment');
+const { HttpError } = require('../../system/helpers/HttpError');
 const appointmentService = new AppointmentService(new Appointment().getInstance());
 const patientsService = new PatientsService(new Patients().getInstance());
 
@@ -10,6 +11,14 @@ class PatientsController {
 
     async insert(req, res, next) {
         try {
+            let { mobileNo } = req.body;
+
+            let patient = await patientsService.model.findOne({ mobileNo });
+            if (patient) {
+                const error = new Error('Patient already exists');
+                error.statusCode = 422;
+                return res.status(error.statusCode).json(new HttpError(error));
+            }
             const registeredUserData = await patientsService.insert(req.body);
             await res.status(200).json(registeredUserData);
         } catch (e) {
@@ -43,6 +52,17 @@ class PatientsController {
             const total = await patientsService.model.countDocuments(query);
             const response = new HttpResponse(items, { 'totalCount': total });
 
+            return res.status(response.statusCode).json(response);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    async delete(req, res, next) {
+        let { id } = req.body;
+        try {
+            let response = await patientsService.delete(id);
+            await appointmentService.model.deleteMany({ patient: id });
             return res.status(response.statusCode).json(response);
         } catch (e) {
             next(e);
