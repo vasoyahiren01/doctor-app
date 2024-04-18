@@ -25,6 +25,10 @@ class Appointment {
                 'type': Number,
                 default: 1 // 1 pending, 2 complete, 3 cancle
             },
+            'procudure': {
+                'type': Boolean,
+                default: false
+            },
             'isDeleted': {
                 'type': Boolean,
                 default: false

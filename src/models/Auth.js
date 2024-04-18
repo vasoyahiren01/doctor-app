@@ -30,7 +30,7 @@ class Auth {
                     'role': user.role
                 }, jwtKey, {
                     'algorithm': 'HS256',
-                    'expiresIn': jwtExpirySeconds,
+                    // 'expiresIn': jwtExpirySeconds,
                 } );
 
                 return token;

@@ -22,10 +22,6 @@ class Patients {
                 'type': mongoose.Types.ObjectId,
                 default: null
             },
-            'procudure': {
-                'type': Boolean,
-                default: false
-            },
             'isDeleted': {
                 'type': Boolean,
                 default: false

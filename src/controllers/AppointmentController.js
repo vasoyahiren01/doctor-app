@@ -25,13 +25,14 @@ class AppointmentController {
 
     async update(req, res, next) {
         try {
-            let { appointmentId, problem, prescription, attachments, followUp, status } = req.body;
+            let { appointmentId, problem, prescription, attachments, followUp, status, procudure } = req.body;
             let update = {}
             if (problem) update['problem'] = problem;
             if (prescription) update['prescription'] = prescription;
             if (attachments) update['attachments'] = attachments;
             if (followUp) update['followUp'] = followUp;
             if (status) update['status'] = status;
+            update['procudure'] = procudure || false;
 
             const updatedObj = await appointmentService.model.findByIdAndUpdate(appointmentId, update, { 'new': true });
 
@@ -54,7 +55,7 @@ class AppointmentController {
                         let: { patient: "$patient" },
                         pipeline: [
                             { $match: { $expr: { $and: [{ $eq: ['$_id', "$$patient"] }] } } },
-                            { $project: { name: 1, mobileNo: 1, gender: 1, age: 1, procudure: 1 } }
+                            { $project: { name: 1, mobileNo: 1, gender: 1, age: 1} }
                         ],
                         as: 'patientInfo'
                     }
@@ -115,7 +116,7 @@ class AppointmentController {
                         let: { patient: "$patient" },
                         pipeline: [
                             { $match: { $expr: { $and: [{ $eq: ['$_id', "$$patient"] }] } } },
-                            { $project: { name: 1, mobileNo: 1, gender: 1, age: 1, procudure:1 } }
+                            { $project: { name: 1, mobileNo: 1, gender: 1, age: 1 } }
                         ],
                         as: 'patientInfo'
                     }
@@ -167,13 +168,13 @@ class AppointmentController {
             if (type) {
                 switch (type) {
                     case 'past':
-                        query['followUp'] = { $lt: new Date(moment().clone().startOf('day')) }
+                        query['followUp'] = { $lt: convertTime({ date: moment().clone().startOf('day').toDate()})}
                         break;
                     case 'today':
-                        query['followUp'] = { $gte: new Date(moment().clone().startOf('day')), $lt: new Date(moment().clone().endOf('day')) }
+                        query['followUp'] = { $gte: convertTime({ date: moment().clone().startOf('day').toDate()}), $lt: convertTime({ date: moment().clone().endOf('day').toDate()}) }
                         break;
                     case 'upcoming':
-                        query['followUp'] = { $gt: new Date(moment().clone().endOf('day')) }
+                        query['followUp'] = { $gt: convertTime({ date: moment().clone().endOf('day').toDate()}) }
                         break;
                     default:
                         break;
@@ -191,7 +192,7 @@ class AppointmentController {
                         let: { patient: "$patient" },
                         pipeline: [
                             { $match: { $expr: { $and: [{ $eq: ['$_id', "$$patient"] }] } } },
-                            { $project: { name: 1, mobileNo: 1, gender: 1, age: 1, procudure:1 } }
+                            { $project: { name: 1, mobileNo: 1, gender: 1, age: 1 } }
                         ],
                         as: 'patientInfo'
                     }
@@ -208,5 +209,19 @@ class AppointmentController {
         }
     }
 }
+
+
+function convertTime({ date = new Date(), from = -330, to = 0 }) {
+    let currentDate = new Date(date),
+        convertTimezoneOffset = to;
+
+    /**
+     * get utc time
+     */
+    let utc = currentDate.getTime() + from * 60 * 1000;
+
+    return new Date(utc - convertTimezoneOffset * 60 * 1000);
+}
+
 
 module.exports = new AppointmentController(appointmentService);
