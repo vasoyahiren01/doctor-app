@@ -91,7 +91,7 @@ class AppointmentController {
     }
 
     async getAll(req, res, next) {
-        let { currentPage, limit, search, status, patient } = req.body;
+        let { currentPage, limit, search, status, patient, procudure = false } = req.body;
         let skip = currentPage == 1 ? 0 : (currentPage - 1) * limit;
 
         limit = limit ? Number(limit) : 10;
@@ -103,7 +103,12 @@ class AppointmentController {
             }
             if (status) query['status'] = status;
 
-            if(patient) query['patient'] = new mongoose.Types.ObjectId(patient) ;
+            if(patient) query['patient'] = new mongoose.Types.ObjectId(patient);
+
+            if(procudure) {
+                query['procudure'] = true;
+                query['followUp'] = { $gte: convertTime({ date: moment().clone().startOf('day').toDate() }) };
+            }
 
             let items = await appointmentService.model.aggregate([
                 { $match: query },
@@ -183,7 +188,7 @@ class AppointmentController {
 
             let items = await appointmentService.model.aggregate([
                 { $match: query },
-                { $sort: { 'createdAt': -1 } },
+                { $sort: { 'createdAt': 1 } },
                 { $skip: skip },
                 { $limit: limit },
                 {
