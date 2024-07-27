@@ -188,7 +188,7 @@ class AppointmentController {
 
             let items = await appointmentService.model.aggregate([
                 { $match: query },
-                { $sort: { 'createdAt': type == 'past' ? -1 : 1 } },
+                { $sort: { 'followUp': type == 'past' ? -1 : 1 } },
                 { $skip: skip },
                 { $limit: limit },
                 {
