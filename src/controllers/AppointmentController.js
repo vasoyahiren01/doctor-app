@@ -96,7 +96,8 @@ class AppointmentController {
 
         limit = limit ? Number(limit) : 10;
         try {
-            let query = { isDeleted: { $ne: true } }
+            let query = { isDeleted: { $ne: true } };
+            let sort = { 'createdAt': -1 }
             if (search) {
                 let patientsIds = await patientsService.model.distinct('_id', { isDeleted: { $ne: true }, $or: [{ name: { $regex: search, $options: 'i' } }, { mobileNo: { $regex: search, $options: 'i' } }] });
                 query['$or'] = [{ problem: { $regex: search, $options: 'i' } }, { prescription: { $regex: search, $options: 'i' } }, { patient: { $in: patientsIds } }]
@@ -108,11 +109,12 @@ class AppointmentController {
             if(procudure) {
                 query['procudure'] = true;
                 query['followUp'] = { $gte: convertTime({ date: moment().clone().startOf('day').toDate() }) };
+                sort = { 'followUp': 1 }
             }
 
             let items = await appointmentService.model.aggregate([
                 { $match: query },
-                { $sort: { 'createdAt': -1 } },
+                { $sort: sort },
                 { $skip: skip },
                 { $limit: limit },
                 {
