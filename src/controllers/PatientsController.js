@@ -13,12 +13,12 @@ class PatientsController {
         try {
             let { mobileNo } = req.body;
 
-            let patient = await patientsService.model.findOne({ mobileNo });
-            if (patient) {
-                const error = new Error('Patient already exists');
-                error.statusCode = 422;
-                return res.status(error.statusCode).json(new HttpError(error));
-            }
+            // let patient = await patientsService.model.findOne({ mobileNo });
+            // if (patient) {
+            //     const error = new Error('Patient already exists');
+            //     error.statusCode = 422;
+            //     return res.status(error.statusCode).json(new HttpError(error));
+            // }
             const registeredUserData = await patientsService.insert(req.body);
             await res.status(200).json(registeredUserData);
         } catch (e) {
